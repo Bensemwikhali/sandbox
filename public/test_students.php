@@ -4,6 +4,7 @@
     </head>
     <body>
         <h1>Students Information</h1>
+        <link rel="stylesheet" href="assets/css/styles.css">
         <table border="1">
             <tr>
                 <th>Name</th>
