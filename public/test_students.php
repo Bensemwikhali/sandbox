@@ -10,6 +10,7 @@
                 <th>Name</th>
                 <th>Adm No</th>
                 <th>Grade</th>
+                <th>Age</th>
             </tr>
             <?php
             $students=[
@@ -38,7 +39,8 @@
             ],
             ];
             foreach($students as $student){
-                echo "<tr><td>".$student["name"]."</td><td>".$student["adm_no"]."</td><td>".$student["grade"]."</td></tr>";
+                if($student["grade"]>=10)
+                echo "<tr><td>".$student["name"]."</td><td>".$student["adm_no"]."</td><td>".$student["grade"]."</td><td>".$student["age"]."</td></tr>";
             }
             ?>
         </table>
