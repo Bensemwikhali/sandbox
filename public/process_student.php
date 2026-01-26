@@ -1,41 +1,32 @@
 <?php
 require_once "config/db.php";
 
-
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    $errors = [];
+    $name   = trim($_POST["username"]);
+    $adm_no = trim($_POST["adm_no"]);
+    $grade  = trim($_POST["grade"]);
 
-    $username = trim($_POST["username"] ?? "");
-    $adm_no   = trim($_POST["adm_no"] ?? "");
-    $grade    = trim($_POST["grade"] ?? "");
-
-    // Validation
-    if (empty($username)) {
-        $errors[] = "Student name is required";
+    if (empty($name) || empty($adm_no) || empty($grade)) {
+        die("All fields are required");
     }
 
-    if (empty($adm_no) || !is_numeric($adm_no)) {
-        $errors[] = "Admission number must be numeric";
+    $sql = "INSERT INTO students (name, adm_no, grade) VALUES (?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+
+    if (!$stmt) {
+        die("Prepare failed: " . $conn->error);
     }
 
-    if (empty($grade) || $grade < 1 || $grade > 12) {
-        $errors[] = "Grade must be between 1 and 12";
-    }
+    $stmt->bind_param("ssi", $name, $adm_no, $grade);
 
-    // Output
-    if (!empty($errors)) {
-        echo "<h3>Errors:</h3><ul>";
-        foreach ($errors as $error) {
-            echo "<li>$error</li>";
-        }
-        echo "</ul>";
-        echo "<a href='add_student.php'>Go back</a>";
+    if ($stmt->execute()) {
+        header("Location: test_students.php");
+        exit;
     } else {
-        echo "<h3>Student Registered Successfully</h3>";
-        echo "Name: $username <br>";
-        echo "Admission No: $adm_no <br>";
-        echo "Grade: $grade <br>";
+        echo "Error: " . $stmt->error;
     }
+
+    $stmt->close();
+    $conn->close();
 }
-?>
