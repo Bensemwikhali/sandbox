@@ -1,48 +1,29 @@
-<html>
-    <head>
-        <title>Students List</title>
-    </head>
-    <body>
-        <h1>Students Information</h1>
-        <link rel="stylesheet" href="assets/css/styles.css">
-        <table border="1">
-            <tr>
-                <th>Name</th>
-                <th>Adm No</th>
-                <th>Grade</th>
-                <th>Age</th>
-            </tr>
-            <?php
-            $students=[
-                [    'name'=>'Ashley Okinyo',
-                'age'=>20,
-                'grade'=>13,
-                'adm_no'=>3120,
-            ],
-            [
-               'name'=>'Vera Auma',
-                'age'=>21,
-                'grade'=>14,
-                'adm_no'=>3121, 
-            ],
-            [
-                'name'=>'John Kamau',
-                 'age'=>14,
-                 'grade'=>7,
-                 'adm_no'=>3122,
-            ],
-            [
-                'name'=>'Mary Wafula',
-                 'age'=>12,
-                 'grade'=>6,
-                 'adm_no'=>3123,
-            ],
-            ];
-            foreach($students as $student){
-                if($student["grade"]>=10)
-                echo "<tr><td>".$student["name"]."</td><td>".$student["adm_no"]."</td><td>".$student["grade"]."</td><td>".$student["age"]."</td></tr>";
-            }
-            ?>
-        </table>
-    </body>
-</html>
+<?php
+require_once "config/db.php";
+
+$result = $conn->query("SELECT id, name, adm_no, grade FROM students");
+$students = $result->fetch_all(mode: MYSQLI_ASSOC);
+?>
+
+<table border="1">
+<tr>
+    <th>Name</th>
+    <th>Adm No</th>
+    <th>Grade</th>
+    <th>Action</th>
+</tr>
+<?php foreach ($students as $student): ?>
+    <tr>
+<td><?= $student['name'] ?></td>
+<td><?= $student['adm_no'] ?></td>
+<td><?= $student['grade'] ?></td>
+<td>
+    <a href="edit_student.php?id=<?= $student['id'] ?>">Edit</a> |
+      <a href="delete_student.php?id=<?= $student['id'] ?>"
+         onclick="return confirm('Are you sure?')">Delete</a>
+
+</td>
+
+    </tr>
+<?php endforeach; ?>
+</table>
