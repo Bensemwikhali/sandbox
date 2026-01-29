@@ -1,26 +1,32 @@
 <?php
 session_start();
 require_once "config/db.php";
+require_once "helpers/flash.php";
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
+$username = trim($_POST['username'] ?? '');
+$password = $_POST['password'] ?? '';
 
-    $username = trim($_POST["username"]);
-    $password = $_POST["password"];
-
-    $stmt = $conn->prepare("SELECT id, password FROM users WHERE username = ?");
-    $stmt->bind_param("s", $username);
-    $stmt->execute();
-
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
-
-    if ($user && password_verify($password, $user["password"])) {
-        $_SESSION["user_id"] = $user["id"];
-        $_SESSION["username"] = $username;
-
-        header("Location: dashboard.php");
-        exit;
-    } else {
-        echo "Invalid login credentials";
-    }
+if (empty($username) || empty($password)) {
+    set_flash('error', 'All fields are required');
+    header("Location: login.php");
+    exit;
 }
+
+$stmt = $conn->prepare("SELECT id, password FROM users WHERE username = ?");
+$stmt->bind_param("s", $username);
+$stmt->execute();
+
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+
+if ($user && password_verify($password, $user['password'])) {
+    $_SESSION['user_id'] = $user['id'];
+    $_SESSION['username'] = $username;
+
+    header("Location: dashboard.php");
+    exit;
+}
+
+set_flash('error', 'Invalid username or password');
+header("Location: login.php");
+exit;
