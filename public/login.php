@@ -20,7 +20,6 @@ $success = get_flash('success');
 <?php if ($success): ?>
     <p style="color:green;"><?= htmlspecialchars($success) ?></p>
 <?php endif; ?>
-
     <h1>Login</h1>
 
     <form action="process_login.php" method="POST">
