@@ -1,4 +1,7 @@
 <?php
+require_once "helpers/auth.php";
+require_auth();
+
 require_once "config/db.php";
 
 $result = $conn->query("SELECT id, name, adm_no, grade FROM students");

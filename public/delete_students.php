@@ -1,4 +1,7 @@
 <?php
+require_once "helpers/auth.php";
+require_auth();
+
 require_once "config/db.php";
 
 $id = $_GET["id"] ?? null;

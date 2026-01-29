@@ -1,10 +1,7 @@
 <?php
-session_start();
+require_once "helpers/auth.php";
+require_auth();
 
-if (!isset($_SESSION["user_id"])) {
-    header("Location: login.php");
-    exit;
-}
 ?>
 
 <!DOCTYPE html>

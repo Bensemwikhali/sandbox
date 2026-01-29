@@ -1,3 +1,8 @@
+<?php
+require_once "helpers/auth.php";
+require_auth();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +11,8 @@
     <title>Student registration form</title>
 </head>
 <body>
+
+
     <h1>STUDENT REGISTRATION FORM</h1>
     <form action="process_student.php" method="POST">
         <label for="username">Username</label>
