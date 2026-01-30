@@ -12,7 +12,7 @@ if (empty($username) || empty($password)) {
     exit;
 }
 
-$stmt = $conn->prepare("SELECT id, password FROM users WHERE username = ?");
+$stmt = $conn->prepare("SELECT id, password, role FROM users WHERE username = ?");
 $stmt->bind_param("s", $username);
 $stmt->execute();
 
@@ -22,6 +22,7 @@ $user = $result->fetch_assoc();
 if ($user && password_verify($password, $user['password'])) {
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['username'] = $username;
+    $_SESSION['role'] = $user['role'];
 
     header("Location: dashboard.php");
     exit;
