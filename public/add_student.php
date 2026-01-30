@@ -1,6 +1,8 @@
 <?php
 require_once "helpers/auth.php";
+require_once "helpers/role.php";
 require_auth();
+require_admin();
 ?>
 
 <!DOCTYPE html>

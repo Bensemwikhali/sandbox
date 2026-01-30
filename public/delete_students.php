@@ -1,7 +1,8 @@
 <?php
 require_once "helpers/auth.php";
+require_once "helpers/role.php";
 require_auth();
-
+require_admin();
 require_once "config/db.php";
 
 $id = $_GET["id"] ?? null;

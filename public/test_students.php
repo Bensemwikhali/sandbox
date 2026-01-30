@@ -21,9 +21,13 @@ $students = $result->fetch_all(mode: MYSQLI_ASSOC);
 <td><?= $student['adm_no'] ?></td>
 <td><?= $student['grade'] ?></td>
 <td>
+    <?php if ($_SESSION['role'] === 'admin'): ?>
     <a href="edit_student.php?id=<?= $student['id'] ?>">Edit</a> |
       <a href="delete_student.php?id=<?= $student['id'] ?>"
          onclick="return confirm('Are you sure?')">Delete</a>
+    <?php else: ?>
+        view only
+    <?php endif; ?>
 
 </td>
 
