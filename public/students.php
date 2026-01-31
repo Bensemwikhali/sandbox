@@ -72,7 +72,7 @@ $search = $_GET['search'] ?? '';
     <?php if ($_SESSION['role'] === 'admin'): ?>
         <td>
             <a href="edit_student.php?id=<?= $row['id'] ?>">Edit</a>
-            <a href="delete_student.php?id=<?= $row['id'] ?>">Delete</a>
+            <a href="delete_students.php?id=<?= $row['id'] ?>">Delete</a>
         </td>
     <?php endif; ?>
 </tr>
