@@ -1,150 +1,111 @@
 <?php
-require_once "helpers/auth.php";
-require_once "config/db.php";
-
+require_once 'helpers/auth.php';
 require_auth();
+require_once 'config/db.php';
 
-$limit  = 5;
-$page   = max((int)($_GET['page'] ?? 1), 1);
-$offset = ($page - 1) * $limit;
+$search = '';
+$params = [];
+$types = '';
 
-$search = trim($_GET['search'] ?? '');
-$term   = "%$search%";
-
-/* ================= COUNT QUERY ================= */
-
-if ($_SESSION['role'] === 'admin') {
-
-    if ($search !== '') {
-        $stmt = $conn->prepare(
-            "SELECT COUNT(*) FROM students
-             WHERE name LIKE ? OR adm_no LIKE ?"
-        );
-        $stmt->bind_param("ss", $term, $term);
-    } else {
-        $stmt = $conn->prepare("SELECT COUNT(*) FROM students");
-    }
-
+if (isset($_GET['search']) && !empty(trim($_GET['search']))) {
+    $search = trim($_GET['search']);
+    $sql = "SELECT * FROM students 
+            WHERE name LIKE ? OR adm_no LIKE ?
+            ORDER BY created_at DESC";
+    $params = ["%$search%", "%$search%"];
+    $types = "ss";
 } else {
-
-    if ($search !== '') {
-        $stmt = $conn->prepare(
-            "SELECT COUNT(*) FROM students
-             WHERE user_id = ?
-             AND (name LIKE ? OR adm_no LIKE ?)"
-        );
-        $stmt->bind_param("iss", $_SESSION['user_id'], $term, $term);
-    } else {
-        $stmt = $conn->prepare(
-            "SELECT COUNT(*) FROM students WHERE user_id = ?"
-        );
-        $stmt->bind_param("i", $_SESSION['user_id']);
-    }
+    $sql = "SELECT * FROM students ORDER BY created_at DESC";
 }
 
-$stmt->execute();
-$stmt->bind_result($total);
-$stmt->fetch();
-$stmt->close();
+$stmt = $conn->prepare($sql);
 
-$totalPages = ceil($total / $limit);
-
-/* ================= FETCH DATA ================= */
-
-if ($_SESSION['role'] === 'admin') {
-
-    if ($search !== '') {
-        $stmt = $conn->prepare(
-            "SELECT * FROM students
-             WHERE name LIKE ? OR adm_no LIKE ?
-             ORDER BY created_at DESC
-             LIMIT ? OFFSET ?"
-        );
-        $stmt->bind_param("ssii", $term, $term, $limit, $offset);
-    } else {
-        $stmt = $conn->prepare(
-            "SELECT * FROM students
-             ORDER BY created_at DESC
-             LIMIT ? OFFSET ?"
-        );
-        $stmt->bind_param("ii", $limit, $offset);
-    }
-
-} else {
-
-    if ($search !== '') {
-        $stmt = $conn->prepare(
-            "SELECT * FROM students
-             WHERE user_id = ?
-             AND (name LIKE ? OR adm_no LIKE ?)
-             ORDER BY created_at DESC
-             LIMIT ? OFFSET ?"
-        );
-        $stmt->bind_param(
-            "issii",
-            $_SESSION['user_id'],
-            $term,
-            $term,
-            $limit,
-            $offset
-        );
-    } else {
-        $stmt = $conn->prepare(
-            "SELECT * FROM students
-             WHERE user_id = ?
-             ORDER BY created_at DESC
-             LIMIT ? OFFSET ?"
-        );
-        $stmt->bind_param("iii", $_SESSION['user_id'], $limit, $offset);
-    }
+if (!empty($params)) {
+    $stmt->bind_param($types, ...$params);
 }
 
 $stmt->execute();
 $result = $stmt->get_result();
 ?>
-<form method="GET">
-    <input type="text" name="search"
-           value="<?= htmlspecialchars($search) ?>"
-           placeholder="Search by name or adm no">
-    <button type="submit">Search</button>
-</form>
 
-<table border="1" cellpadding="8">
-    <tr>
-        <th>Name</th>
-        <th>Admission No</th>
-        <th>Grade</th>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Students</title>
+    <link rel="stylesheet" href="assets/bootstrap.min.css">
+</head>
+<body>
 
-        <?php if ($_SESSION['role'] === 'admin'): ?>
-            <th>Actions</th>
-        <?php endif; ?>
-    </tr>
+<div class="container mt-4">
 
-    <?php while ($row = $result->fetch_assoc()): ?>
-        <tr>
-            <td><?= htmlspecialchars($row['name']) ?></td>
-            <td><?= htmlspecialchars($row['adm_no']) ?></td>
-            <td><?= htmlspecialchars($row['grade']) ?></td>
+    <h2 class="mb-3">Students</h2>
 
-            <?php if ($_SESSION['role'] === 'admin'): ?>
-                <td>
-                    <a href="edit_student.php?id=<?= $row['id'] ?>">Edit</a> |
-                    <a href="delete_student.php?id=<?= $row['id'] ?>"
-                       onclick="return confirm('Delete this student?')">
-                       Delete
-                    </a>
-                </td>
+    <!-- Search -->
+    <form method="get" class="mb-3 d-flex gap-2">
+        <input type="text" name="search" class="form-control"
+               placeholder="Search by name or admission number"
+               value="<?= htmlspecialchars($search) ?>">
+        <button type="submit" class="btn btn-secondary">Search</button>
+    </form>
+
+    <!-- Admin-only: Add Student -->
+    <?php if ($_SESSION['role'] === 'admin'): ?>
+        <a href="add_student.php" class="btn btn-primary mb-3">
+            Add Student
+        </a>
+    <?php endif; ?>
+
+    <!-- Students Table -->
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Admission No</th>
+                <th>Name</th>
+                <th>Grade</th>
+                <th>Created At</th>
+                <?php if ($_SESSION['role'] === 'admin'): ?>
+                    <th>Actions</th>
+                <?php endif; ?>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if ($result->num_rows > 0): ?>
+                <?php $i = 1; ?>
+                <?php while ($row = $result->fetch_assoc()): ?>
+                    <tr>
+                        <td><?= $i++ ?></td>
+                        <td><?= htmlspecialchars($row['adm_no']) ?></td>
+                        <td><?= htmlspecialchars($row['name']) ?></td>
+                        <td><?= htmlspecialchars($row['grade']) ?></td>
+                        <td><?= htmlspecialchars($row['created_at']) ?></td>
+
+                        <?php if ($_SESSION['role'] === 'admin'): ?>
+                            <td>
+                                <a href="edit_student.php?id=<?= $row['id'] ?>"
+                                   class="btn btn-sm btn-warning">Edit</a>
+                                <a href="delete_student.php?id=<?= $row['id'] ?>"
+                                   class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Delete this student?')">
+                                   Delete
+                                </a>
+                            </td>
+                        <?php endif; ?>
+                    </tr>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="<?= $_SESSION['role'] === 'admin' ? '6' : '5' ?>"
+                        class="text-center">
+                        No students found
+                    </td>
+                </tr>
             <?php endif; ?>
-        </tr>
-    <?php endwhile; ?>
-</table>
+        </tbody>
+    </table>
 
-<!-- Pagination -->
-<div style="margin-top:10px;">
-<?php for ($i = 1; $i <= $totalPages; $i++): ?>
-    <a href="?page=<?= $i ?>&search=<?= urlencode($search) ?>">
-        <?= $i ?>
-    </a>
-<?php endfor; ?>
 </div>
 
+</body>
+</html>

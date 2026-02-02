@@ -2,10 +2,9 @@
 require_once "helpers/auth.php";
 require_once "helpers/role.php";
 require_auth();
-$user_id = $_SESSION['user_id'];
+require_admin();
 
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
