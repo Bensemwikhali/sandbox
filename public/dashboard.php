@@ -22,9 +22,7 @@ require_auth();
 
     <ul>
        <li><a href="students.php">View Students</a></li>
-    <?php if ($_SESSION['role'] === 'admin'): ?>
         <li><a href="add_student.php">Add Student</a></li>
-    <?php endif; ?>
     <?php if ($_SESSION['role'] === 'admin'): ?>
     <li><a href="add_user.php">Add User</a></li>
 <?php endif; ?>

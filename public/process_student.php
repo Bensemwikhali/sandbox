@@ -11,17 +11,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         die("All fields are required");
     }
 
-    $sql = "INSERT INTO students (name, adm_no, grade) VALUES (?, ?, ?)";
+    $sql = "INSERT INTO students (name, adm_no, grade, user_id) VALUES (?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
 
     if (!$stmt) {
         die("Prepare failed: " . $conn->error);
     }
 
-    $stmt->bind_param("ssi", $name, $adm_no, $grade);
+    $stmt->bind_param("sssi", $name, $adm_no, $grade, $user_id);
 
     if ($stmt->execute()) {
-        header("Location: test_students.php");
+        header("Location: students.php");
         exit;
     } else {
         echo "Error: " . $stmt->error;

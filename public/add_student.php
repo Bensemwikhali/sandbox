@@ -2,7 +2,8 @@
 require_once "helpers/auth.php";
 require_once "helpers/role.php";
 require_auth();
-require_admin();
+$user_id = $_SESSION['user_id'];
+
 ?>
 
 <!DOCTYPE html>
